@@ -1,14 +1,14 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { ChakraProvider } from "@chakra-ui/react";
 import theme from "./config/theme.";
-import Home from "./pages/Home";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 function App() {
 
 
 
   const router = createBrowserRouter([
-    { path: "/", element: <Home />, errorElement: "Error" },
+    { path: "/register", element: <Register />, errorElement: "Error" },
     { path: "/login", element: <Login />, errorElement: "Error" },
 
   ])
