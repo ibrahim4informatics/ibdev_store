@@ -37,7 +37,7 @@ const verifyAccessToken = (token: string): { id: string } | null => {
         return null;
     }
 }
-const refreshToken = (refreshToken: string): string | null => {
+const refreshTokens = (refreshToken: string): string | null => {
     try {
         const { accessSecret, refreshSecret } = getSecrets()
         if (!refreshSecret || !accessSecret) return null;
@@ -52,5 +52,5 @@ const refreshToken = (refreshToken: string): string | null => {
 
 }
 export {
-    generateTokens, AuthRequest, verifyAccessToken, refreshToken
+    generateTokens, AuthRequest, verifyAccessToken, refreshTokens, getSecrets
 }

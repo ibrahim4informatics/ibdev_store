@@ -26,10 +26,10 @@ app.use(cors(corsOption));
 app.use(express.json());
 app.use(fileUpload(fileUploadOptions));
 app.use(helmet());
-app.use(expressSession(sessionOptions));
+// app.use(expressSession(sessionOptions));
 app.use(cookieParser());
 app.use(passport.initialize());
-app.use(passport.session());
+// app.use(passport.session());
 app.use(morgan("common", {stream:  fs.createWriteStream(path.join(__dirname, 'logs', 'log.txt'), {flags:'a'})  }));
 //?using routers
 app.use('/api/v1/auth', authRouter);

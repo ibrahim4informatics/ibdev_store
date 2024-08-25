@@ -1,11 +1,12 @@
 import { Box, Button, FormControl, FormErrorMessage, FormLabel, Heading, IconButton, Image, Input, InputGroup, InputLeftElement, InputRightElement, Step, StepIcon, StepIndicator, StepNumber, StepSeparator, StepStatus, StepTitle, Stepper, Text, useSteps, } from '@chakra-ui/react'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { FaEnvelope, FaEye, FaEyeSlash, FaLock, FaMobile } from 'react-icons/fa6'
 import { Link, useNavigate } from 'react-router-dom'
 import Validator from '../utils/validator'
 import registerPicture from '../assets/auth/register.svg'
 import axios from '../config/axios';
 import { useToast } from '@chakra-ui/react'
+import useAuth from '../hooks/useAuth'
 
 type data = {
     email: string,
@@ -31,6 +32,7 @@ const Register = () => {
         count: steps.length
     })
     const navigate = useNavigate();
+    const isLoggedIn = useAuth();
 
     const toast = useToast({ position: "top" });
 
@@ -118,8 +120,17 @@ const Register = () => {
         setDataErrors({ ...dataErrors, [event.target.name]: "" });
         setData({ ...data, [event.target.name]: event.target.value });
     }
+
+
+    useEffect(() => {
+        if (isLoggedIn) {
+
+            return navigate('/');
+
+        }
+    }, [isLoggedIn])
     return (
-        <Box w={"100%"} h={{ base: "100svh", lg: "100vh" }} bg={'secondary.300'} display={'flex'} alignItems={'center'} justifyContent={'center'}>
+        isLoggedIn === null ? "" : (<Box w={"100%"} h={{ base: "100svh", lg: "100vh" }} bg={'secondary.300'} display={'flex'} alignItems={'center'} justifyContent={'center'}>
 
             <Box rounded={'md'} display={'flex'} width={"90%"} maxW={"900px"} bg={"white"} boxShadow={"0 0 12px rgba(0,0,0,.2), 4px 4px 10px rgb(252,252,252)"}>
 
@@ -234,7 +245,7 @@ const Register = () => {
                 </Box>
 
             </Box>
-        </Box>
+        </Box>)
     )
 }
 

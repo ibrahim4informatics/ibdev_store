@@ -8,6 +8,7 @@ import jwt from 'jsonwebtoken'
 import { sendMail } from "../utils/nodemailer.utils";
 import '../utils/strategies/google';
 import passport from "passport";
+import isAuth from "../midlewares/isAuth";
 
 const router: Router = Router();
 
@@ -60,23 +61,23 @@ router.post('/register', async (req: Request, res: Response) => {
 })
 
 
-router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }))
+router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'], session: false }))
 router.get('/google/callback', (req, res, next) => {
     passport.authenticate('google', (err: Error | any, user: any) => {
         if (err) {
             return res.status(500).json({ message: err || "error ocured while loging the user" })
         }
-        console.log(user)
-        req.login(user, (err) => {
-            if (err) {
-                return res.status(500).json({ message: "error ocured while loging the user" })
-            }
-
-        })
-        next()
+        const { accessToken, refreshToken } = generateTokens({ id: user.id });
+        res.cookie('access', accessToken, { ...cookiesOptions, maxAge: 1000 * 60 * 15 });
+        res.cookie('refresh', refreshToken, { ...cookiesOptions, maxAge: 1000 * 3600 * 24 * 7 });
+        return next()
 
     })(req, res, next)
-}, (req, res) => res.redirect("http://localhost:5417/"))
+},
+
+    (req, res) => res.redirect("http://localhost:5173/")
+
+)
 
 
 router.post('/reset/request', async (req: Request, res: Response) => {
@@ -223,12 +224,13 @@ router.post('/reset/change', async (req, res) => {
     }
 })
 
-router.get('/logout', (req: Request, res: Response) => {
-    res.cookie('access', null);
-    res.cookie('refresh', null);
-    req.logOut({ keepSessionInfo: false }, (err) => {
-        if (err) return res.status(500).json({ message: "an error occurred while logging out" });
-    });
+router.get('/logout', isAuth,(req: Request, res: Response) => {
+    res.cookie('access', null, { maxAge: 0 });
+    res.cookie('refresh', null, { maxAge: 0 });
     return res.status(200).json({ message: "logout successful" });
+})
+
+router.get('/status', isAuth, (req: Request, res: Response) => {
+    return res.status(200).json({ loggedIn: true, user: req.user });
 })
 export default router;
