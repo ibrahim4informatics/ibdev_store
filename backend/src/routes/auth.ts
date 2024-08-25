@@ -29,7 +29,6 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
         const { accessToken, refreshToken } = generateTokens({ id: user.id });
         res.cookie('access', accessToken, { ...cookiesOptions, maxAge: 1000 * 60 * 15 });
         res.cookie('refresh', refreshToken, { ...cookiesOptions, maxAge: 1000 * 3600 * 24 * 7 });
-        console.log(user)
         return res.status(200).json({ message: "user login successful" });
     }
     catch (err) {

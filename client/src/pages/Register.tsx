@@ -1,9 +1,11 @@
-import { Box, Button, FormControl, FormErrorMessage, FormLabel, Heading, IconButton, Image, Input, InputGroup, InputLeftElement, InputRightElement, Step, StepDescription, StepIcon, StepIndicator, StepNumber, StepSeparator, StepStatus, StepTitle, Stepper, Text, useSteps, } from '@chakra-ui/react'
+import { Box, Button, FormControl, FormErrorMessage, FormLabel, Heading, IconButton, Image, Input, InputGroup, InputLeftElement, InputRightElement, Step, StepIcon, StepIndicator, StepNumber, StepSeparator, StepStatus, StepTitle, Stepper, Text, useSteps, } from '@chakra-ui/react'
 import React, { useState } from 'react'
 import { FaEnvelope, FaEye, FaEyeSlash, FaLock, FaMobile } from 'react-icons/fa6'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import Validator from '../utils/validator'
-import registerPicture from '../assets/register.svg'
+import registerPicture from '../assets/auth/register.svg'
+import axios from '../config/axios';
+import { useToast } from '@chakra-ui/react'
 
 type data = {
     email: string,
@@ -24,10 +26,13 @@ const validator = new Validator()
 
 
 const Register = () => {
-    const { activeStep, goToNext, goToPrevious } = useSteps({
+    const { activeStep, goToNext, setActiveStep } = useSteps({
         index: 1,
         count: steps.length
     })
+    const navigate = useNavigate();
+
+    const toast = useToast({ position: "top" });
 
     const [show, setShow] = React.useState(false)
     const [data, setData] = useState<data>({ email: "", password: "", confirm: "", given_name: "", family_name: "", nickname: "", phone: "" });
@@ -63,7 +68,50 @@ const Register = () => {
                 setDataErrors({ ...dataErrors, phone: "Invalid phone number format" });
             }
 
-            console.log(data)
+            const req = axios.post('/auth/register', data)
+
+
+            req.then(res => {
+                if (res.status === 201) return navigate('/login')
+            }).catch(err => {
+                if (err.status === 400) {
+                    switch (err.response.data.message) {
+                        case "you must provide valid email":
+                            setDataErrors({ ...dataErrors, email: err.response.data.message });
+
+                            setActiveStep(1);
+                            break;
+                        case "password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character":
+                            setDataErrors({ ...dataErrors, password: err.response.data.message });
+                            setActiveStep(1);
+                            break;
+                        case "passwords do not match":
+                            setDataErrors({ ...dataErrors, confirm: err.response.data.message });
+                            setActiveStep(1);
+                            break;
+                        case "you must provide a valid phone number":
+                            setDataErrors({ ...dataErrors, phone: err.response.data.message });
+                            setActiveStep(2);
+                            break;
+                        case "email is already in use":
+                            console.log('first')
+                            setDataErrors({ ...dataErrors, email: err.response.data.message });
+                            console.log(err.response.data.message);
+                            setActiveStep(1);
+                            break;
+                        default: break;
+                    }
+                }
+            })
+
+
+            toast.promise(req, {
+                error: { title: "Registration Failed", description: "Check The information about the registration" },
+                success: { title: "Registration Complete", description: "Go And Login To Your Account" },
+                loading: { title: "Loading", description: "Please Wait..." },
+            })
+
+
         }
     }
     const hundleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -145,7 +193,7 @@ const Register = () => {
 
                     {activeStep === 2 && (<>
                         <form onSubmit={hundleSubmit}>
-                            <FormControl  my={2} isRequired >
+                            <FormControl my={2} isRequired >
                                 <FormLabel>Given Name</FormLabel>
                                 <Input onChange={hundleInputChange} value={data.given_name} placeholder='eg:Jack' name='given_name' type='text' />
                             </FormControl>
@@ -155,7 +203,7 @@ const Register = () => {
                                 <Input onChange={hundleInputChange} value={data.family_name} placeholder='eg:Smith' name='family_name' type='text' />
                             </FormControl>
 
-                            <FormControl  my={2} isRequired={false} >
+                            <FormControl my={2} isRequired={false} >
                                 <FormLabel>Nickname</FormLabel>
                                 <Input onChange={hundleInputChange} value={data.nickname || ''} placeholder='eg:jackoo' name='nickname' type='text' />
                             </FormControl>
@@ -182,7 +230,7 @@ const Register = () => {
 
                 </Box>
                 <Box display={{ base: 'none', md: "flex" }} w={"50%"} bg={'secondary.600'}>
-                    <Image src={registerPicture} alt='register' w={"100%"}/>
+                    <Image src={registerPicture} alt='register' w={"100%"} />
                 </Box>
 
             </Box>

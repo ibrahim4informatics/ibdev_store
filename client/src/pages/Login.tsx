@@ -1,9 +1,10 @@
-import { Box, Button, Divider, FormControl, FormErrorMessage, FormLabel, Heading, IconButton, Image, Input, InputGroup, InputLeftElement, InputRightElement, Text } from '@chakra-ui/react';
+import { Box, Button, Divider, FormControl, FormErrorMessage, FormLabel, Heading, IconButton, Image, Input, InputGroup, InputLeftElement, InputRightElement, Text, useToast } from '@chakra-ui/react';
 import { FaEnvelope, FaLock, FaEyeSlash, FaEye, FaGoogle } from 'react-icons/fa6'
-import loginImage from '../assets/login.svg'
+import loginImage from '../assets/auth/login.svg'
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Validator from '../utils/validator';
+import axios from '../config/axios';
 
 type data = {
     email: string;
@@ -11,6 +12,8 @@ type data = {
 }
 const Login = () => {
     const [show, setShow] = useState<boolean>(false);
+    const toast = useToast({ position: "top" });
+    const navigate = useNavigate()
     const [data, setData] = useState<data>({ email: "", password: "" });
     const [dataErrors, setDataErrors] = useState<data>({ email: '', password: '' })
     const hundleSubmite = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -32,10 +35,38 @@ const Login = () => {
 
         }
 
-        console.log(data)
 
-        //todo validation and setting values
+        const req = axios.post('/auth/login', data);
+
+        req.then(res => {
+
+            if (res.status === 200) return navigate('/');
+
+        })
+            .catch(err => {
+
+                if (err.response.status === 400 || err.response.status === 401) {
+                    return setDataErrors({ email: "invalid email or password", password: "invalid email or password" });
+                }
+            })
+
+        toast.promise(req, {
+            success: {
+                title: 'Logged in successfully',
+                description: 'You have been successfully logged in',
+            },
+            error: {
+                title: 'Login Failed',
+                description: 'Failed to login chacke the invalid fields',
+
+            },
+            loading: {
+                title: "Please Wait...",
+                description: "trying to login..."
+            }
+        })
     }
+
     const hundleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setDataErrors(prev => ({ ...prev, [event.target.name]: '' }));
         setData(prev => ({ ...prev, [event.target.name]: event.target.value }));
@@ -88,7 +119,7 @@ const Login = () => {
                         <Divider my={4} />
                         <Text textAlign={'center'} fontWeight={'bold'} color={'secondary.900'}>OR</Text>
                         <Box my={2}>
-                            <Button as={Link} to={'/google'} w={'full'} size={'lg'} variant={'solid'} colorScheme='accent' my={2} leftIcon={<FaGoogle />} >Continue With Google</Button>
+                            <Button as={Link} to={`${import.meta.env.VITE_API_BASE_URL}/auth/google`} w={'full'} size={'lg'} variant={'solid'} colorScheme='accent' my={2} leftIcon={<FaGoogle />} >Continue With Google</Button>
                         </Box>
                     </form>
                 </Box>

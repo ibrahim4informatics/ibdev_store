@@ -3,6 +3,7 @@ import { ChakraProvider } from "@chakra-ui/react";
 import theme from "./config/theme.";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Reset from "./pages/Reset";
 function App() {
 
 
@@ -10,6 +11,7 @@ function App() {
   const router = createBrowserRouter([
     { path: "/register", element: <Register />, errorElement: "Error" },
     { path: "/login", element: <Login />, errorElement: "Error" },
+    { path: "/reset", element: <Reset />, errorElement: "Error" },
 
   ])
 
