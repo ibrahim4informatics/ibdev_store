@@ -4,6 +4,7 @@ import theme from "./config/theme.";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Reset from "./pages/Reset";
+import ChangePassword from "./pages/ChangePassword";
 function App() {
 
 
@@ -13,6 +14,7 @@ function App() {
     { path: "/register", element: <Register />, errorElement: "Error" },
     { path: "/login", element: <Login />, errorElement: "Error" },
     { path: "/reset", element: <Reset />, errorElement: "Error" },
+    { path: "/change", element: <ChangePassword />, errorElement: "Error" },
 
   ])
 
