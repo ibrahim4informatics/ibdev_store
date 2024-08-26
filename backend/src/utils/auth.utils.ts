@@ -1,9 +1,13 @@
 
 import { Request } from "express";
 import jwt from 'jsonwebtoken';
+
+
 interface AuthRequest extends Request {
-    user?: { id: string };
+    user: { id: string };
 }
+
+
 const getSecrets = (): { accessSecret: string | null, refreshSecret: string | null } => {
     const accessSecret: string | null = process.env.ACCESS_SECRET || null;
     const refreshSecret: string | null = process.env.REFRESH_SECRET || null;

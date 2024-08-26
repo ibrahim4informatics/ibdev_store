@@ -31,9 +31,7 @@ router.get('/google/callback', (req: Request, res: Response, next: NextFunction)
 
     })(req, res, next)
 },
-
     (req, res) => res.redirect("http://localhost:5173/")
 
 )
-
 export default router;
