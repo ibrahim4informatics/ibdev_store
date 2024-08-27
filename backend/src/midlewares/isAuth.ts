@@ -10,7 +10,6 @@ export default async (req: Request, res: Response, next: NextFunction): Promise<
     const accessToken: string = req.cookies.access;
 
     if (!accessSecret) return res.status(500).json({ message: "Access Secret not found" });
-    if (!accessToken) return res.status(401).json({ message: "UnAuthorized" });
     try {
 
         const decoded: { id: string } = await jwt.verify(accessToken, accessSecret) as { id: string };
@@ -21,7 +20,7 @@ export default async (req: Request, res: Response, next: NextFunction): Promise<
 
     }
     catch (err) {
-        // console.error(err);
+        console.error("refresh");
         if (!req.cookies.refresh) return res.status(401).json({ message: "UnAuthorized" })
         const newAccessToken = await refreshTokens(req.cookies.refresh);
         if (!newAccessToken) {
